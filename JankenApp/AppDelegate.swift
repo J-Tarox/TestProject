@@ -14,6 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     
     var jankenresult:Int?
+    
+    var winCount = 0
 
     
 

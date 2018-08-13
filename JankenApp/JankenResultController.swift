@@ -11,6 +11,7 @@ import AVFoundation
 class JankenResultController: UIViewController {
     var jankenResultcall:AVAudioPlayer?
     var callURL:URL?
+    @IBOutlet weak var winlabel: UILabel!
     @IBOutlet weak var resultText: UILabel!
     let appDelegate:AppDelegate = UIApplication.shared.delegate as! AppDelegate
     
@@ -27,17 +28,24 @@ class JankenResultController: UIViewController {
         if appDelegate.jankenresult == 0{
             JankenResultImage.image = aiko
             resultText.text = "あいこじゃ"
+            appDelegate.winCount = 0
             callURL = Bundle.main.url(forResource: "あいこコール", withExtension: "m4a")
             playJankenCall()
             
         }else if appDelegate.jankenresult == 1 {
             JankenResultImage.image = win
             resultText.text = "あんたの勝ちじゃ"
+            appDelegate.winCount += 1
+            if appDelegate.winCount > 1 {
+                winlabel.text = "\(String(describing: appDelegate.winCount))連勝！"
+            }
+            
             callURL = Bundle.main.url(forResource: "勝ちコール", withExtension: "m4a")
             playJankenCall()
         }else{
             JankenResultImage.image = lose
             resultText.text = "ワシの勝ちじゃ"
+            appDelegate.winCount = 0
             callURL = Bundle.main.url(forResource: "負けコール", withExtension: "m4a")
             playJankenCall()
         }
