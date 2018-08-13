@@ -11,11 +11,16 @@ import GameplayKit
 import AVFoundation
 
 class ViewController: UIViewController {
-     var player:AVAudioPlayer?
+     let appDelegate:AppDelegate = UIApplication.shared.delegate as! AppDelegate
+     var jankencall:AVAudioPlayer?
     var pon:AVAudioPlayer?
     
-    var soundURL = Bundle.main.url(forResource: "じゃんけんコール", withExtension: "mp4")
-
+    var callURL = Bundle.main.url(forResource: "じゃんけんコール", withExtension: "mp4")
+    var ponURL = Bundle.main.url(forResource: "ぽんコール", withExtension: "m4a")
+    @IBOutlet weak var gu: UIButton!
+    @IBOutlet weak var choki: UIButton!
+    @IBOutlet weak var pah: UIButton!
+    
     //乱数作成インスタンス
     let randomJanken = GKRandomSource()
 
@@ -29,12 +34,18 @@ class ViewController: UIViewController {
     //引数[0 = グー],[1 = チョキ],[2 = パー]
     func jankenplay(Player: String){
         
-        soundURL = Bundle.main.url(forResource: "ぽんコール", withExtension: "m4a")
-        playmusic(count: 0)
+        gu.isEnabled = false
+        choki.isEnabled = false
+        pah.isEnabled = false
+        
+        UIButton.appearance().isExclusiveTouch = true
+       text1.text = "じゃんけん　ぽん！"
+        playPonCall()
+        
         //1~3までの乱数生成
         let comp = randomJanken.nextInt(upperBound: 3)
         //じゃんけんメッセージ
-        var msg = ""
+        
         
         
         switch comp {
@@ -43,17 +54,17 @@ class ViewController: UIViewController {
             jankenImage.image = UIImage(named: "M-j_gu01.png")
             switch Player{
             case "グー": //グー
-                msg = "あいこじゃ"
-                soundURL = Bundle.main.url(forResource: "あいこコール", withExtension: "m4a")
-                playmusic(count: 1)
+                
+                
+                appDelegate.jankenresult = 0
             case "チョキ": //チョキ
-                msg = "ワシの勝ちじゃ"
-                soundURL = Bundle.main.url(forResource: "負けコール", withExtension: "m4a")
-                playmusic(count: 1)
+               
+               
+                appDelegate.jankenresult = 2
             case "パー": //パー
-                msg = "あんたの勝ちじゃ"
-                soundURL = Bundle.main.url(forResource: "勝ちコール", withExtension: "m4a")
-                playmusic(count: 1)
+               
+               
+                appDelegate.jankenresult = 1
             default:
                 break
                 
@@ -64,17 +75,17 @@ class ViewController: UIViewController {
             switch Player{
                 
             case "グー": //グー
-                msg = "あんたの勝ちじゃ"
-                soundURL = Bundle.main.url(forResource: "勝ちコール", withExtension: "m4a")
-                playmusic(count: 1)
+               
+               
+                appDelegate.jankenresult = 1
             case "チョキ": //チョキ
-                msg = "あいこじゃ"
-                soundURL = Bundle.main.url(forResource: "あいこコール", withExtension: "m4a")
-                playmusic(count: 1)
+                
+              
+                appDelegate.jankenresult = 0
             case "パー": //パー
-                msg = "ワシの勝ちじゃ"
-                soundURL = Bundle.main.url(forResource: "負けコール", withExtension: "m4a")
-                playmusic(count: 1)
+               
+              
+                appDelegate.jankenresult = 2
             default:
                 break
                 
@@ -84,17 +95,17 @@ class ViewController: UIViewController {
             switch Player{
                 
             case "グー": //グー
-                msg = "ワシの勝ちじゃ"
-                soundURL = Bundle.main.url(forResource: "負けコール", withExtension: "m4a")
-                playmusic(count: 1)
+                
+              
+                appDelegate.jankenresult = 2
             case "チョキ": //チョキ
-                msg = "あんたの勝ちじゃ"
-                soundURL = Bundle.main.url(forResource: "勝ちコール", withExtension: "m4a")
-                playmusic(count: 1)
+            
+              
+                appDelegate.jankenresult = 1
             case "パー": //パー
-                msg = "あいこじゃ"
-                soundURL = Bundle.main.url(forResource: "あいこコール", withExtension: "m4a")
-                playmusic(count: 1)
+               
+               
+                appDelegate.jankenresult = 0
             default:
                 break
                 
@@ -102,64 +113,88 @@ class ViewController: UIViewController {
         default: break
         }
         
-        text1.text = msg
         
+    
+        
+        RunLoop.current.run(until: Date.init(timeIntervalSinceNow: 1.0))
+        performSegue(withIdentifier: "toJankenResult", sender: nil)
     }
+    
     
     //グーボタンが押された時の処理
     @IBAction func gu(_ sender: Any) {
-
-        soundURL = Bundle.main.url(forResource: "ぽんコール", withExtension: "m4a")
-        playmusic(count: 1)
+        
+        
+        
+        stopJankenCall()
         jankenplay(Player: "グー")
+        
+        
+        
     }
     
     //チョキボタンが押された時の処理
     @IBAction func choki(_ sender: Any) {
-        soundURL = Bundle.main.url(forResource: "ぽんコール", withExtension: "m4a")
-        playmusic(count: 1)
+       
+       stopJankenCall()
         jankenplay(Player: "チョキ")
     }
     
     //パーボタンが押された時の処理
     @IBAction func pha(_ sender: Any) {
-        soundURL = Bundle.main.url(forResource: "ぽんコール", withExtension: "m4a")
-        playmusic(count: 1)
+        
+        stopJankenCall()
         jankenplay(Player: "パー")
     }
     
-    func playmusic(count:Int){
+    func playJankenCall(){
         do {
-            player = try AVAudioPlayer(contentsOf: soundURL!)
-            if count == 0{
-            player?.numberOfLoops = -1   // ループ再生する
-            player?.prepareToPlay()      // 即時再生させる
-            player?.play()               // BGMを鳴らす
-            }else{
-            player?.prepareToPlay()      // 即時再生させる
-            player?.play()
-            }
+            jankencall = try AVAudioPlayer(contentsOf: callURL!)
+           
+            jankencall?.numberOfLoops = -1   // ループ再生する
+            jankencall?.prepareToPlay()      // 即時再生させる
+            jankencall?.play()               // BGMを鳴らす
+           
         } catch {
             print("error...")
         }
     }
-    func stopmusic(){
-        player?.stop()
+    
+    func playPonCall() {
+        do {
+            pon = try AVAudioPlayer(contentsOf: ponURL!)
+            pon?.prepareToPlay()      // 即時再生させる
+            pon?.play()               // BGMを鳴らす
+            
+        } catch {
+            print("error...")
+        }
+        
+    }
+    func stopJankenCall(){
+        jankencall?.stop()
     }
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
-       playmusic(count: 0)
+       playJankenCall()
+    
        
         // Do any additional setup after loading the view, typically from a nib.
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if (segue.identifier == "toLogout") {
-            stopmusic()
+            stopJankenCall()
+            
+        }
+        
+        if (segue.identifier == "toJankenResult") {
+           
         }
     }
+    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
