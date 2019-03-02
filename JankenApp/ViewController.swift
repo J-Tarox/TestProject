@@ -70,6 +70,7 @@ class ViewController: UIViewController {
                 
             }
             //乱数1の時
+            //テストコメント
         case 1:
             jankenImage.image = UIImage(named: "M-j_ch01.png")
             switch Player{
